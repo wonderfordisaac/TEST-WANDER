@@ -25,53 +25,49 @@
         .friend-card img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
         .u-badge { background: #25d366; color: white; font-size: 10px; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; right: 15px; font-weight: bold; }
         
-        #chatSection { display: none; flex-direction: column; height: 100%; background: #e5ddd5; position: relative; }
+        #chatSection { display: none; flex-direction: column; height: 100%; background: #e5ddd5; position: relative; overflow: hidden; }
         
-        /* 1. KUKONZA KUTI MAUTHENGA ASABISIKE (PADDING PANTSI) */
         #messagesContainer { 
             flex: 1; 
-            overflow-y: auto; 
+            overflow-y: scroll; 
             padding: 15px; 
             display: flex; 
             flex-direction: column; 
             gap: 10px; 
-            padding-bottom: 100px; /* Malo osiyira textarea */
+            padding-bottom: 120px; 
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
 
-        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 14px; position: relative; }
+        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 14px; position: relative; word-wrap: break-word; }
         .sent { align-self: flex-end; background: #0a2b4f; color: white; border-bottom-right-radius: 2px; }
         .received { align-self: flex-start; background: white; color: black; border-bottom-left-radius: 2px; }
 
-        /* 2. TEXTAREA YOYANDAMA (FIXED) KOMANSO YOKWEZEDWA MWAMBA */
         .input-area { 
-            background: white; 
-            padding: 12px; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            position: fixed; 
-            bottom: 15px; /* Yakwezedwa mwamba pang'ono kuchoka pansi */
-            left: 10px;
-            right: 10px;
-            z-index: 2000;
-            border-radius: 30px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            margin-bottom: env(safe-area-inset-bottom);
+            background: white; padding: 12px; display: flex; align-items: center; gap: 8px; position: absolute; 
+            bottom: 20px; left: 10px; right: 10px; z-index: 2000; border-radius: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
         
-        .input-area input { flex: 1; padding: 12px 15px; border: none; outline: none; font-size: 16px; background: transparent; }
+        .input-area input { flex: 1; padding: 12px 5px; border: none; outline: none; font-size: 16px; background: transparent; }
         .icon-btn { cursor: pointer; font-size: 24px; color: #0a2b4f; }
+        
+        #recTimerLabel { font-size: 14px; color: red; font-weight: bold; display: none; margin-left: 10px; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; margin-top: 50px; }
-        .empty-state i { font-size: 60px; color: #ccc; margin-bottom: 15px; }
-        .add-btn { background: #25d366; color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; }
+        /* FULL SCREEN IMAGE VIEWER CSS */
         #viewerOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; flex-direction: column; justify-content: center; align-items: center; }
         #viewerImg { max-width: 100%; max-height: 80%; object-fit: contain; }
-        .viewer-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 35px; }
-        .chat-img { width: 200px; border-radius: 10px; cursor: pointer; }
+        .viewer-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 35px; cursor: pointer; }
+        .chat-img { width: 200px; border-radius: 10px; cursor: pointer; margin-top: 5px; }
+
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; }
         #msgOptions { display: none; position: fixed; bottom: 0; width: 100%; background: white; z-index: 2600; border-radius: 20px 20px 0 0; padding: 15px 0; flex-direction: column; align-items: center; }
         .opt-btn { width: 90%; padding: 15px; text-align: center; font-weight: bold; border-bottom: 1px solid #eee; }
+        
+        /* VOICE PROGRESS STYLE */
+        .voice-play { background: #25d366; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; flex-shrink: 0; }
+        .v-track { flex: 1; height: 4px; background: #ddd; border-radius: 2px; position: relative; min-width: 100px; }
+        .v-progress { position: absolute; height: 100%; background: #25d366; width: 0%; border-radius: 2px; }
     </style>
 </head>
 <body>
@@ -80,8 +76,8 @@
     <span class="viewer-close" onclick="closeViewer()">×</span>
     <img id="viewerImg" src="">
     <div class="viewer-nav" style="position: absolute; bottom: 40px; display: flex; gap: 60px; color: white; font-size: 40px;">
-        <i class="fi fi-rr-angle-circle-left" onclick="navImg(-1)"></i>
-        <i class="fi fi-rr-angle-circle-right" onclick="navImg(1)"></i>
+        <i class="fi fi-rr-angle-circle-left" onclick="navImg(-1)" style="cursor:pointer"></i>
+        <i class="fi fi-rr-angle-circle-right" onclick="navImg(1)" style="cursor:pointer"></i>
     </div>
 </div>
 <div id="overlay" onclick="closePop()"></div>
@@ -96,7 +92,7 @@
     <div class="header-info" onclick="goToProfile()">
         <img id="headerPic" src="">
         <div class="status-box">
-            <b id="chatTitle">Mauthenga</b>
+            <b id="chatTitle">Massege chating</b>
             <span id="userStatus"></span>
         </div>
     </div>
@@ -107,15 +103,17 @@
 <div id="chatSection">
     <div id="messagesContainer"></div>
     <div class="input-area">
-        <label for="imgInput" class="icon-btn"><i class="fi fi-rr-picture"></i></label>
+        <label for="imgInput" id="imgLabel" class="icon-btn"><i class="fi fi-rr-picture"></i></label>
         <input type="file" id="imgInput" accept="image/*" multiple hidden onchange="uploadImages(this.files)">
+        
+        <span id="recTimerLabel">0:00</span>
         <input type="text" id="messageInput" placeholder="Text here..." oninput="handleTyping()">
+        
         <div id="actionBtnSlot"><i class="fi fi-sr-microphone icon-btn" onclick="toggleRecording()"></i></div>
     </div>
 </div>
 
 <script>
-// --- APA PALI JAVASCRIPT YANU YOMWE SIMUNASINTHE CHILICHONSE ---
 const firebaseConfig = {
     apiKey: "AIzaSyDt_ayoflnFkRRnS2fXITY2EzJz0KcW5QA",
     authDomain: "makert-bfb76.firebaseapp.com",
@@ -128,15 +126,14 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore(), rtdb = firebase.database(), auth = firebase.auth();
 
-db.enablePersistence().catch((err) => { console.log("Persistence error"); });
-
 const IMGBB_API_KEY = "dba8c1151016eeb9f9826939c6ca5107";
 const CLOUD_NAME = "dmu7ctilf", CLOUD_PRESET = "WanderSlapp";
 
 let myID, activeFriendID, chatID, selectedMsgKey, typingTimeout, currentChatRef = null;
-let mediaRecorder, audioChunks = [], isRecording = false, recTimer, seconds = 0;
+let mediaRecorder, audioChunks = [], isRecording = false, recInterval, seconds = 0;
 let chatImages = []; 
 let currentImgIdx = 0;
+let currentAudio = null;
 
 auth.onAuthStateChanged(user => {
     if(user) { 
@@ -147,24 +144,10 @@ auth.onAuthStateChanged(user => {
     }
 });
 
-function timeAgo(t) {
-    if (t === "active") return "online";
-    const s = Math.floor((Date.now() - t) / 1000);
-    if (s < 60) return "just now";
-    if (s < 3600) return Math.floor(s/60) + "m ago";
-    if (s < 86400) return Math.floor(s/3600) + "hr ago";
-    return Math.floor(s/86400) + "d ago";
-}
-
 function loadFriends() {
     db.collection("friendRequests").where("status", "==", "confirmed").onSnapshot(snap => {
         const container = document.getElementById("friendsContainer");
         container.innerHTML = "";
-        const myFriends = snap.docs.filter(doc => doc.data().from === myID || doc.data().to === myID);
-        if (myFriends.length === 0) {
-            container.innerHTML = `<div class="empty-state"><i class="fi fi-rr-users"></i><p>Mulibe mnzanu pano.</p><a href="friend.html" class="add-btn">Add Friend</a></div>`;
-            return;
-        }
         snap.forEach(doc => {
             const d = doc.data();
             if(d.from === myID || d.to === myID) {
@@ -214,13 +197,6 @@ function openChat(fID, fName, fPhoto) {
         renderSingleMessage(snap.key, m);
     });
 
-    currentChatRef.on('child_changed', snap => {
-        const m = snap.val();
-        const msgDiv = document.getElementById("msg_" + snap.key);
-        if (m.deletedBy && m.deletedBy[myID]) { if(msgDiv) msgDiv.remove(); }
-        else if (msgDiv) { msgDiv.innerHTML = m.isDeletedForAll ? `<i>🚫 Deleted</i>` : renderMsg(m); }
-    });
-
     rtdb.ref(`status/${fID}`).on('value', s => {
         const val = s.val();
         rtdb.ref(`typing/${chatID}/${fID}`).on('value', t => {
@@ -237,24 +213,55 @@ function renderSingleMessage(key, m) {
     const div = document.createElement("div");
     div.id = "msg_" + key;
     div.className = `msg ${m.from === myID ? 'sent' : 'received'}`;
-    div.onclick = () => showOptions(key, m.from);
-    div.innerHTML = m.isDeletedForAll ? `<i>🚫 Deleted</i>` : renderMsg(m);
+    div.onclick = (e) => { 
+        if(e.target.tagName !== 'I' && !e.target.classList.contains('chat-img') && !e.target.classList.contains('voice-play')) {
+            showOptions(key, m.from);
+        }
+    };
+    div.innerHTML = m.isDeletedForAll ? `<i>🚫 Deleted</i>` : renderMsg(m, key);
     container.appendChild(div);
-    container.scrollTop = container.scrollHeight;
+    setTimeout(() => { container.scrollTop = container.scrollHeight; }, 100);
 }
 
-function renderMsg(m) {
+function renderMsg(m, key) {
     const isMine = (m.from === myID);
     const tickColor = m.read ? "#34b7f1" : "#999";
     const ticks = isMine ? `<i class="fi fi-sr-check-double" style="color:${tickColor}; font-size:11px"></i>` : "";
+    
     if(m.type === "image") return `<img src="${m.imageUrl}" class="chat-img" onclick="openViewer('${m.imageUrl}')"><div>${ticks}</div>`;
-    if(m.type === "voice") return `<i class="fi fi-sr-play" onclick="new Audio('${m.audioUrl}').play()"></i> Voice ${ticks}`;
+    
+    if(m.type === "voice") {
+        return `
+            <div style="display:flex; align-items:center; gap:10px; padding: 5px 0;">
+                <div class="voice-play" id="playBtn_${key}" onclick="playVoice('${m.audioUrl}', '${key}')">
+                    <i class="fi fi-sr-play" id="icon_${key}"></i>
+                </div>
+                <div class="v-track"><div class="v-progress" id="prog_${key}"></div></div>
+            </div>
+            <div style="text-align:right; font-size:9px">${ticks}</div>`;
+    }
+    
     return `<span>${m.text}</span><div style="text-align:right; font-size:9px">${ticks}</div>`;
 }
 
-function openViewer(url) { currentImgIdx = chatImages.indexOf(url); document.getElementById("viewerImg").src = url; document.getElementById("viewerOverlay").style.display = "flex"; }
-function closeViewer() { document.getElementById("viewerOverlay").style.display = "none"; }
-function navImg(dir) { currentImgIdx += dir; if(currentImgIdx < 0) currentImgIdx = chatImages.length-1; if(currentImgIdx >= chatImages.length) currentImgIdx = 0; document.getElementById("viewerImg").src = chatImages[currentImgIdx]; }
+function playVoice(url, key) {
+    const icon = document.getElementById(`icon_${key}`);
+    const prog = document.getElementById(`prog_${key}`);
+    if (currentAudio && currentAudio.src === url) {
+        if (currentAudio.paused) { currentAudio.play(); icon.className = "fi fi-sr-pause"; }
+        else { currentAudio.pause(); icon.className = "fi fi-sr-play"; }
+        return;
+    }
+    if (currentAudio) { currentAudio.pause(); document.querySelectorAll('.voice-play i').forEach(i => i.className = "fi fi-sr-play"); }
+    currentAudio = new Audio(url);
+    currentAudio.play();
+    icon.className = "fi fi-sr-pause";
+    currentAudio.ontimeupdate = () => {
+        const percent = (currentAudio.currentTime / currentAudio.duration) * 100;
+        prog.style.width = percent + "%";
+    };
+    currentAudio.onended = () => { icon.className = "fi fi-sr-play"; prog.style.width = "0%"; };
+}
 
 function handleTyping() {
     const txt = document.getElementById("messageInput").value.trim();
@@ -275,17 +282,10 @@ function sendMessage() {
     handleTyping();
 }
 
-async function uploadImages(files) {
-    for (let f of files) {
-        const fd = new FormData(); fd.append("image", f);
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {method:"POST", body:fd});
-        const data = await res.json();
-        rtdb.ref('chats').push({ chatID, from: myID, to: activeFriendID, type: "image", imageUrl: data.data.url, timestamp: Date.now(), read: false });
-    }
-}
-
 async function toggleRecording() {
     const input = document.getElementById("messageInput");
+    const timerLabel = document.getElementById("recTimerLabel");
+    const imgLabel = document.getElementById("imgLabel");
     if (!isRecording) {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorder = new MediaRecorder(stream);
@@ -298,10 +298,41 @@ async function toggleRecording() {
             const data = await res.json();
             rtdb.ref('chats').push({ chatID, from: myID, to: activeFriendID, type: "voice", audioUrl: data.secure_url, timestamp: Date.now(), read: false });
         };
-        mediaRecorder.start(); isRecording = true; input.disabled = true;
+        mediaRecorder.start();
+        isRecording = true; seconds = 0;
+        timerLabel.style.display = "block"; input.style.display = "none"; imgLabel.style.display = "none";
+        recInterval = setInterval(() => {
+            seconds++; let m = Math.floor(seconds / 60); let s = seconds % 60;
+            timerLabel.innerText = `${m}:${s < 10 ? '0' + s : s}`;
+        }, 1000);
     } else {
-        mediaRecorder.stop(); isRecording = false; input.disabled = false; input.value = ""; handleTyping();
+        mediaRecorder.stop(); isRecording = false; clearInterval(recInterval);
+        timerLabel.style.display = "none"; input.style.display = "block"; imgLabel.style.display = "block";
+        handleTyping();
     }
+}
+
+async function uploadImages(files) {
+    for (let f of files) {
+        const fd = new FormData(); fd.append("image", f);
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {method:"POST", body:fd});
+        const data = await res.json();
+        rtdb.ref('chats').push({ chatID, from: myID, to: activeFriendID, type: "image", imageUrl: data.data.url, timestamp: Date.now(), read: false });
+    }
+}
+
+/* VIEWER FUNCTIONS */
+function openViewer(url) { 
+    currentImgIdx = chatImages.indexOf(url); 
+    document.getElementById("viewerImg").src = url; 
+    document.getElementById("viewerOverlay").style.display = "flex"; 
+}
+function closeViewer() { document.getElementById("viewerOverlay").style.display = "none"; }
+function navImg(dir) { 
+    currentImgIdx += dir; 
+    if(currentImgIdx < 0) currentImgIdx = chatImages.length-1; 
+    if(currentImgIdx >= chatImages.length) currentImgIdx = 0; 
+    document.getElementById("viewerImg").src = chatImages[currentImgIdx]; 
 }
 
 function showOptions(k, f) { selectedMsgKey = k; document.getElementById("overlay").style.display = "block"; document.getElementById("msgOptions").style.display = "flex"; document.getElementById("delAllBtn").style.display = (f === myID) ? "block" : "none"; }
@@ -318,7 +349,6 @@ function goBack() {
         if(currentChatRef) currentChatRef.off();
     } else { window.location.href = "dashboard.html"; }
 }
-
 function goToProfile() { if(activeFriendID) window.location.href = `profile.html?id=${activeFriendID}`; }
 </script>
 </body>
