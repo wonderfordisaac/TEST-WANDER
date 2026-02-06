@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ny">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications</title>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <style>
+        body { font-family: system-ui; background: #f0f2f5; margin: 0; padding: 15px; }
+        .notif-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative; }
+        .unread { border-left: 5px solid red; background: #fff8f8; }
+        .content { flex: 1; cursor: pointer; }
+        .msg-text { font-size: 14px; color: #333; margin: 0; }
+        .time { font-size: 10px; color: gray; }
+        .del-btn { color: #ff4d4d; border: none; background: none; font-size: 18px; cursor: pointer; padding: 5px; margin-left: 10px; }
+        header { background: #0a142b; color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 15px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <span onclick="location.href='dashboard.html'" style="cursor:pointer; font-size:20px;">←</span>
+    <b>Zidziwitso</b>
+</header>
+
+<div id="notifList">Kufufuza zidziwitso...</div>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyDt_ayoflnFkRRnS2fXITY2EzJz0KcW5QA",
+    authDomain: "makert-bfb76.firebaseapp.com",
+    databaseURL: "https://makert-bfb76-default-rtdb.firebaseio.com",
+    projectId: "makert-bfb76",
+    storageBucket: "makert-bfb76.firebasestorage.app",
+    messagingSenderId: "245693362931",
+    appId: "1:245693362931:web:e15662a22dd50d2ac63d86"
+};
+
+firebase.initializeApp(firebaseConfig);
+const rtdb = firebase.database();
+const auth = firebase.auth();
+
+auth.onAuthStateChanged(user => {
+    if(user) {
+        // Kuwerenga mauthenga onse a user uyu
+        rtdb.ref('notifications').orderByChild('to').equalTo(user.uid).on('value', snap => {
+            const list = document.getElementById("notifList");
+            list.innerHTML = "";
+            
+            if(!snap.exists()) {
+                list.innerHTML = "<p style='text-align:center; color:gray;'>Palibe zidziwitso.</p>";
+                return;
+            }
+
+            let notifs = [];
+            snap.forEach(child => {
+                notifs.push({ id: child.key, ...child.val() });
+            });
+
+            notifs.reverse().forEach(n => {
+                const isUnread = n.read === false ? "unread" : "";
+                // Ngati pali link yomwe inatumizidwa, igwiritsidwe ntchito, apo ayi ipite ku dashboard
+                const destination = n.link ? n.link : 'dashboard.html';
+
+                list.innerHTML += `
+                    <div class="notif-card ${isUnread}">
+                        <div class="content" onclick="markReadAndGo('${n.id}', '${destination}')">
+                            <p class="msg-text">${n.message}</p>
+                            <span class="time">${new Date(n.timestamp).toLocaleString()}</span>
+                        </div>
+                        <button class="del-btn" onclick="deleteNotif('${n.id}')">×</button>
+                    </div>`;
+            });
+        });
+    }
+});
+
+// NTCHITO: Sinthani kukhala "read" (kuti badge izime) ndipo tumizani user komwe zachitikira
+function markReadAndGo(id, link) {
+    rtdb.ref('notifications/' + id).update({ read: true }).then(() => {
+        window.location.href = link;
+    });
+}
+
+function deleteNotif(id) {
+    if(confirm("Kodi mufuna kufuta uthenga uwu?")) {
+        rtdb.ref('notifications/' + id).remove();
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ny">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WanderSlapp - Mauthenga</title>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
+    <style>
+        :root { --bg: #0a142b; --text: #f6fbff; --accent: #25d366; }
+        body { font-family: system-ui; margin: 0; background: #f0f2f5; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: var(--bg); color: white; padding: 10px 15px; display: flex; align-items: center; gap: 10px; height: 60px; z-index: 100; }
+        .header-info { display: flex; align-items: center; gap: 10px; flex: 1; cursor: pointer; }
+        #headerPic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; display: none; }
+        .status-box { display: flex; flex-direction: column; }
+        #userStatus { font-size: 11px; color: #25d366; }
+        #friendListSection { flex: 1; overflow-y: auto; padding: 10px; }
+        .friend-card { background: white; padding: 12px; border-radius: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 8px; cursor: pointer; position: relative; }
+        .friend-card img { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+        .u-badge { background: #25d366; color: white; font-size: 10px; min-width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; right: 15px; font-weight: bold; }
+        
+        /* --- CHATSOPANO: CSS YA NO FRIENDS --- */
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; margin-top: 50px; }
+        .empty-state i { font-size: 60px; color: #ccc; margin-bottom: 15px; }
+        .empty-state p { color: #666; font-size: 16px; margin-bottom: 20px; }
+        .add-btn { background: #25d366; color: white; padding: 12px 25px; border-radius: 25px; text-decoration: none; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        /* --- KATHERO --- */
+
+        #chatSection { display: none; flex-direction: column; flex: 1; background: #e5ddd5; overflow: hidden; }
+        #messagesContainer { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 80%; padding: 10px; border-radius: 15px; font-size: 14px; position: relative; cursor: pointer; transition: all 0.2s; }
+        .sent { align-self: flex-end; background: #0a2b4f; color: white; border-bottom-right-radius: 2px; }
+        .received { align-self: flex-start; background: white; color: black; border-bottom-left-radius: 2px; }
+         
+        /* // --- CHATSOPANO: CSS YA FULL SCREEN VIEWER --- // */
+        #viewerOverlay { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.95); z-index: 2000; flex-direction: column; 
+            justify-content: center; align-items: center; 
+        }
+        #viewerImg { max-width: 100%; max-height: 80%; object-fit: contain; }
+        .viewer-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 35px; cursor: pointer; }
+        .viewer-nav { position: absolute; bottom: 40px; display: flex; gap: 60px; color: white; font-size: 40px; }
+        .viewer-nav i { cursor: pointer; opacity: 0.8; }
+        .viewer-nav i:hover { opacity: 1; }
+        .chat-img { width: 200px; border-radius: 10px; cursor: pointer; display: block; }
+        /* // --- KATHERO --- // */
+
+        .input-area { background: white; padding: 10px; display: flex; align-items: center; gap: 8px; border-top: 1px solid #ddd; }
+        .input-area input { flex: 1; padding: 12px 15px; border-radius: 25px; border: 1px solid #ddd; outline: none; }
+        .icon-btn { cursor: pointer; font-size: 24px; color: #0a2b4f; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; }
+        #msgOptions { display: none; position: fixed; bottom: 0; width: 100%; background: white; z-index: 1001; border-radius: 20px 20px 0 0; padding: 15px 0; flex-direction: column; align-items: center; }
+        .opt-btn { width: 90%; padding: 15px; text-align: center; font-weight: bold; border-bottom: 1px solid #eee; cursor: pointer; }
+    </style>
+</head>
+<body>
+    
+<div id="viewerOverlay">
+    <span class="viewer-close" onclick="closeViewer()">×</span>
+    <img id="viewerImg" src="">
+    <div class="viewer-nav">
+        <i class="fi fi-rr-angle-circle-left" onclick="navImg(-1)"></i>
+        <i class="fi fi-rr-angle-circle-right" onclick="navImg(1)"></i>
+    </div>
+</div>
+<div id="overlay" onclick="closePop()"></div>
+<div id="msgOptions">
+    <div class="opt-btn" onclick="deleteMessage('me')">Delete for me</div>
+    <div class="opt-btn" id="delAllBtn" style="color:red" onclick="deleteMessage('everyone')">Delete for everyone</div>
+    <div class="opt-btn" onclick="closePop()" style="color:grey">Cancel</div>
+</div>
+
+<div class="header">
+    <div onclick="goBack()" style="cursor:pointer; font-size:20px;">←</div>
+    <div class="header-info" onclick="goToProfile()">
+        <img id="headerPic" src="">
+        <div class="status-box">
+            <b id="chatTitle">Mauthenga</b>
+            <span id="userStatus"></span>
+        </div>
+    </div>
+</div>
+
+<div id="friendListSection"><div id="friendsContainer"></div></div>
+
+<div id="chatSection">
+    <div id="messagesContainer"></div>
+    <div class="input-area">
+        <label for="imgInput" class="icon-btn"><i class="fi fi-rr-picture"></i></label>
+        <input type="file" id="imgInput" accept="image/*" multiple hidden onchange="uploadImages(this.files)">
+        <input type="text" id="messageInput" placeholder="Lembani..." oninput="handleTyping()">
+        <div id="actionBtnSlot"><i class="fi fi-sr-microphone icon-btn" onclick="toggleRecording()"></i></div>
+    </div>
+</div>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyDt_ayoflnFkRRnS2fXITY2EzJz0KcW5QA",
+    authDomain: "makert-bfb76.firebaseapp.com",
+    databaseURL: "https://makert-bfb76-default-rtdb.firebaseio.com",
+    projectId: "makert-bfb76",
+    storageBucket: "makert-bfb76.firebasestorage.app",
+    messagingSenderId: "245693362931",
+    appId: "1:245693362931:web:e15662a22dd50d2ac63d86"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore(), rtdb = firebase.database(), auth = firebase.auth();
+    // --- PANO NDIYE PONYANI CODE YATSOPANOYI --- //
+// --- CHATSOPANO: ENABLE OFFLINE PERSISTENCE --- //
+db.enablePersistence()
+  .catch((err) => {
+      if (err.code == 'failed-precondition') {
+          console.log("Persistence failed: Multiple tabs open");
+      } else if (err.code == 'unimplemented') {
+          console.log("Persistence not supported in this browser");
+      }
+  });
+// --- KATHERO --- //
+
+const IMGBB_API_KEY = "6cd76cd441b1c0779a48c166439c8ffe";
+const CLOUD_NAME = "dtf7lxl6v", CLOUD_PRESET = "slapp_preset";
+
+let myID, activeFriendID, chatID, selectedMsgKey, typingTimeout, currentChatRef = null;
+let mediaRecorder, audioChunks = [], isRecording = false, recTimer, seconds = 0;
+ 
+// // --- CHATSOPANO: VARIABLES ZA SLIDE --- //
+let chatImages = []; 
+let currentImgIdx = 0;
+// // --- KATHERO --- //
+
+auth.onAuthStateChanged(user => {
+    if(user) { 
+        myID = user.uid; 
+        rtdb.ref(`status/${myID}`).set("active");
+        rtdb.ref(`status/${myID}`).onDisconnect().set(Date.now());
+        loadFriends(); 
+    }
+});
+
+function timeAgo(t) {
+    if (t === "active") return "online";
+    const s = Math.floor((Date.now() - t) / 1000);
+    if (s < 60) return "just now";
+    if (s < 3600) return Math.floor(s/60) + "m ago";
+    if (s < 86400) return Math.floor(s/3600) + "hr ago";
+    return Math.floor(s/86400) + "d ago";
+}
+
+function loadFriends() {
+    db.collection("friendRequests").where("status", "==", "confirmed").onSnapshot(snap => {
+        const container = document.getElementById("friendsContainer");
+        container.innerHTML = "";
+        
+        // --- CHATSOPANO: NGATI ALIBE ANZAKE --- //
+        const myFriends = snap.docs.filter(doc => doc.data().from === myID || doc.data().to === myID);
+        
+        if (myFriends.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fi fi-rr-users"></i>
+                    <p>Mulibe mnzanu pano, chonde pangani add anzanu.</p>
+                    <a href="friend.html" class="add-btn">Add Friend</a>
+                </div>`;
+            return;
+        }
+        // --- KATHERO --- //
+        snap.forEach(doc => {
+            const d = doc.data();
+            if(d.from === myID || d.to === myID) {
+                const fID = (d.from === myID) ? d.to : d.from;
+                db.collection("users").doc(fID).get().then(uDoc => {
+                    const u = uDoc.data();
+                    const div = document.createElement("div");
+                    div.className = "friend-card";
+                    div.onclick = () => openChat(fID, u.fullName, u.profilePhoto);
+                    div.innerHTML = `<img src="${u.profilePhoto || 'https://i.ibb.co/7z5nDqK/avatar.png'}"><b>${u.fullName}</b><div class="u-badge" id="badge_${fID}" style="display:none">0</div>`;
+                    container.appendChild(div);
+                    listenForUnread(fID);
+                });
+            }
+        });
+    });
+}
+
+function listenForUnread(fID) {
+    rtdb.ref('chats').orderByChild('from').equalTo(fID).on('value', snap => {
+        let count = 0;
+        snap.forEach(m => { if(m.val().to === myID && !m.val().read) count++; });
+        const b = document.getElementById("badge_"+fID);
+        if(b) { b.innerText = count; b.style.display = count > 0 ? "flex" : "none"; }
+    });
+}
+
+function openChat(fID, fName, fPhoto) {
+    activeFriendID = fID;
+    chatID = myID < fID ? myID + "_" + fID : fID + "_" + myID;
+    document.getElementById("friendListSection").style.display = "none";
+    document.getElementById("chatSection").style.display = "flex";
+    document.getElementById("chatTitle").innerText = fName;
+    document.getElementById("headerPic").src = fPhoto || 'https://i.ibb.co/7z5nDqK/avatar.png';
+    document.getElementById("headerPic").style.display = "block";
+
+    const container = document.getElementById("messagesContainer");
+    container.innerHTML = ""; 
+    
+    // // --- CHATSOPANO: RESET LIST YA ZITHUNZI --- //
+    chatImages = []; 
+    // // --- KATHERO --- //
+
+    if(currentChatRef) currentChatRef.off();
+    currentChatRef = rtdb.ref('chats').orderByChild('chatID').equalTo(chatID);
+    
+    // UTII: New Message added
+    currentChatRef.on('child_added', snap => {
+        const m = snap.val();
+        if (m.deletedBy && m.deletedBy[myID]) return;
+        
+        // // --- CHATSOPANO: ONJEZANI CHITHUNZI MU LIST --- //
+        if(m.type === "image" && !m.isDeletedForAll) chatImages.push(m.imageUrl);
+        // // --- KATHERO --- //
+
+        renderSingleMessage(snap.key, m);
+    });
+
+    // UTII: Message updated (Read ticks kapena Delete for Everyone)
+    currentChatRef.on('child_changed', snap => {
+        const m = snap.val();
+        const msgDiv = document.getElementById("msg_" + snap.key);
+        if (m.deletedBy && m.deletedBy[myID]) {
+            if(msgDiv) msgDiv.remove(); // Kuchosa pompo pompo ngati user wadina delete for me
+        } else if (msgDiv) {
+            msgDiv.innerHTML = m.isDeletedForAll ? `<i style="opacity:0.6">🚫 This message was deleted</i>` : renderMsg(m);
+        }
+    });
+
+    // UTII: Message removed from DB
+    currentChatRef.on('child_removed', snap => {
+        const msgDiv = document.getElementById("msg_" + snap.key);
+        if(msgDiv) msgDiv.remove();
+    });
+
+    rtdb.ref(`status/${fID}`).on('value', s => {
+        const val = s.val();
+        rtdb.ref(`typing/${chatID}/${fID}`).on('value', t => {
+            const st = document.getElementById("userStatus");
+            if(t.val()) st.innerText = "typing...";
+            else st.innerText = (val === "active") ? "online" : "offline - active " + timeAgo(val);
+        });
+    });
+}
+
+function renderSingleMessage(key, m) {
+    const container = document.getElementById("messagesContainer");
+    if (m.to === myID && !m.read) rtdb.ref(`chats/${key}`).update({read: true});
+    const div = document.createElement("div");
+    div.id = "msg_" + key;
+    div.className = `msg ${m.from === myID ? 'sent' : 'received'}`;
+    let pressTimer;
+    div.onmousedown = () => pressTimer = setTimeout(() => showOptions(key, m.from), 600);
+    div.onmouseup = () => clearTimeout(pressTimer);
+    div.ontouchstart = () => pressTimer = setTimeout(() => showOptions(key, m.from), 600);
+    div.ontouchend = () => clearTimeout(pressTimer);
+    div.innerHTML = m.isDeletedForAll ? `<i style="opacity:0.6">🚫 This message was deleted</i>` : renderMsg(m);
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+function renderMsg(m) {
+    const isMine = (m.from === myID);
+    const tickColor = m.read ? "#34b7f1" : "#999";
+    const ticks = isMine ? `<i class="fi fi-sr-check-double" style="color:${tickColor}; font-size:11px; margin-left:5px"></i>` : "";
+    let content = m.type === "voice" ? `<div class="voice-msg"><i class="fi fi-sr-play" onclick="new Audio('${m.audioUrl}').play()"></i> Voice</div>` :
+                  (m.type === "image" ? `<img src="${m.imageUrl}" style="width:200px; border-radius:10px">` : `<span>${m.text}</span>`);
+    
+    // // --- CHATSOPANO: ONCLICK YA IMAGE VIEWER --- //
+    if(m.type === "image") {
+        return `<img src="${m.imageUrl}" class="chat-img" onclick="openViewer('${m.imageUrl}')">
+                <div style="text-align:right">${ticks}</div>`;
+    }
+    // // --- KATHERO --- //
+    return `${content}<div style="text-align:right; font-size:9px; opacity:0.6">${ticks}</div>`;
+}
+
+// // --- CHATSOPANO: MA FUNCTION A IMAGE VIEWER --- //
+function openViewer(url) {
+    currentImgIdx = chatImages.indexOf(url);
+    document.getElementById("viewerImg").src = url;
+    document.getElementById("viewerOverlay").style.display = "flex";
+}
+
+function closeViewer() { document.getElementById("viewerOverlay").style.display = "none"; }
+
+function navImg(dir) {
+    currentImgIdx += dir;
+    if(currentImgIdx < 0) currentImgIdx = chatImages.length - 1;
+    if(currentImgIdx >= chatImages.length) currentImgIdx = 0;
+    document.getElementById("viewerImg").src = chatImages[currentImgIdx];
+}
+// // --- KATHERO --- //
+
+function handleTyping() {
+    const txt = document.getElementById("messageInput").value.trim();
+    if(chatID) {
+        rtdb.ref(`typing/${chatID}/${myID}`).set(true);
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => rtdb.ref(`typing/${chatID}/${myID}`).set(false), 2000);
+    }
+    document.getElementById("actionBtnSlot").innerHTML = txt.length > 0 ? 
+        `<i class="fi fi-sr-paper-plane icon-btn" onclick="sendMessage()"></i>` : 
+        `<i class="fi fi-sr-microphone icon-btn" onclick="toggleRecording()"></i>`;
+}
+
+function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const txt = input.value.trim();
+    if(!txt) return;
+    input.value = ""; 
+    rtdb.ref('chats').push({ chatID, from: myID, to: activeFriendID, text: txt, type: "text", timestamp: Date.now(), read: false });
+    rtdb.ref(`typing/${chatID}/${myID}`).set(false);
+    handleTyping();
+}
+
+async function uploadImages(files) {
+    for (let f of files) {
+        const fd = new FormData(); fd.append("image", f);
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {method:"POST", body:fd});
+        const data = await res.json();
+        rtdb.ref('chats').push({ chatID, from: myID, to: activeFriendID, type: "image", imageUrl: data.data.url, timestamp: Date.now(), read: false });
+    }
+}
+
+async function toggleRecording() {
+    const input = document.getElementById("messageInput");
+    if (!isRecording) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+            const blob = new Blob(audioChunks, { type: 'audio/mp3' });
+            const fd = new FormData(); fd.append("file", blob); fd.append("upload_preset", CLOUD_PRESET);
+            const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/video/upload`, {method:"POST", body:fd});
+            const data = await res.json();
+            rtdb.ref('chats').push({ chatID, from: myID, to: activeFriendID, type: "voice", audioUrl: data.secure_url, timestamp: Date.now(), read: false });
+        };
+        mediaRecorder.start(); isRecording = true; seconds = 0; input.disabled = true;
+        recTimer = setInterval(() => {
+            seconds++;
+            let m = Math.floor(seconds/60).toString().padStart(2,'0'), s = (seconds%60).toString().padStart(2,'0');
+            input.value = `Recording... ${m}:${s}`;
+        }, 1000);
+    } else {
+        mediaRecorder.stop(); isRecording = false; clearInterval(recTimer);
+        input.disabled = false; input.value = ""; handleTyping();
+    }
+}
+
+function deleteMessage(type) {
+    if (type === 'me') {
+        rtdb.ref(`chats/${selectedMsgKey}/deletedBy/${myID}`).set(true);
+    } else {
+        rtdb.ref(`chats/${selectedMsgKey}`).update({ isDeletedForAll: true });
+    }
+    closePop();
+}
+
+function showOptions(k, f) {
+    selectedMsgKey = k;
+    document.getElementById("overlay").style.display = "block";
+    document.getElementById("msgOptions").style.display = "flex";
+    document.getElementById("delAllBtn").style.display = (f === myID) ? "block" : "none";
+}
+
+function closePop() { document.getElementById("overlay").style.display="none"; document.getElementById("msgOptions").style.display="none"; }
+
+function goBack() {
+    const chat = document.getElementById("chatSection");
+    if(chat.style.display === "flex") {
+        chat.style.display = "none";
+        document.getElementById("friendListSection").style.display = "block";
+        document.getElementById("headerPic").style.display = "none";
+        document.getElementById("chatTitle").innerText = "Mauthenga";
+        document.getElementById("userStatus").innerText = "";
+        if(currentChatRef) currentChatRef.off();
+    } else { window.location.href = "dashboard.html"; }
+}
+
+function goToProfile() { if(activeFriendID) window.location.href = `profile.html?id=${activeFriendID}`; }
+</script>
+</body>
+</html>
