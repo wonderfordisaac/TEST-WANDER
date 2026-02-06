@@ -213,7 +213,7 @@ window.addEventListener('message', function(event) {
 });
 
 function handleShare(type) {
-    const url = "https://wonderfordisaac.github.io/TEST-WANDER/index.html?id=" + currentSharePID;
+    const url = "https://wonderfordisaac.github.io/TEST-WANDER/userpost.html?id=" + currentSharePID;
     if(type === 'whatsapp') window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent("Onani: " + url));
     else if(type === 'facebook') window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url));
     else if(type === 'copy') { navigator.clipboard.writeText(url); alert("Copied!"); }
