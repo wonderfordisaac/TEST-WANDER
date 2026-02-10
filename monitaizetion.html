@@ -201,12 +201,9 @@ function loadRealtimeStats() {
         let comm = d.build_community || 0;
         money += Math.floor(comm / 5) * 5;
         
-        // --- CHOKONZEDWA CHOKHA NDI ICHI (ADMIN CONTROL) ---
-        // Izi zithandiza kuti nambala yomwe mwalemba ku Admin ionjezere kapena ichotse pa balance
         let adjustment = d.admin_adjustment || 0;
         
         myBal = (money + adjustment) - (d.total_withdrawn || 0);
-        // ----------------------------------------------------
 
         document.getElementById("totalMoney").innerText = `MK${myBal.toFixed(2)}`;
         document.getElementById("drawBal").innerText = `MK${myBal.toFixed(2)}`;
@@ -249,6 +246,11 @@ function updateSettings() {
 
 function doWithdraw() {
     const amt = parseFloat(document.getElementById("amtToDraw").value);
+    
+    // --- CHIDINDO CHATSOPANO CHOYESA 1000 ---
+    if(amt < 1000) return alert("withdraw yayambira 1000. Pezani anzanu ambiri azipanga comment ma post anu, kuti muchulukise ndalama zanu");
+    // ----------------------------------------
+
     if(amt > myBal) return alert("Ndalama ndizochepa!");
     
     const request = {
@@ -263,7 +265,7 @@ function doWithdraw() {
     document.getElementById("popContent").innerHTML = `
         <h2 style="color:var(--accent)">MK${amt} Mwachotsa!</h2>
         <p>Ndalama zatumizidwa ku: <b>${userMonData.method} (${userMonData.payNumber})</b></p>
-        <p style="font-size:11px;">Muyenera kudikilira nthawi yosadutsa 24hr kuti ndalama zifike ku account yanu.</p>
+        <p style="font-size:11px;">Muyenera kudikilira nthawi yosadutsa 24hr kuti ndalama zifike ku account yanu.<br>Ngati sizinafike kupitilira nthawi yi lankhulani ndi TeemSupot yathu</p>
     `;
     document.getElementById("popup").style.display = "block";
 }

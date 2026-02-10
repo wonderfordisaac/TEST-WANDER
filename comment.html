@@ -42,11 +42,11 @@
 </div>
 
 <div class="list-area" id="commentContainer">
-    <div style="text-align:center; padding:20px; color:#888;">Ndikulowetsa...</div>
+    <div style="text-align:center; padding:20px; color:#888;">Loading comment...</div>
 </div>
 
 <div class="input-area">
-    <input type="text" id="commentInput" placeholder="Lembani comment...">
+    <input type="text" id="commentInput" placeholder="comment...">
     <button class="send-btn" onclick="sendComment()"><i class="fi fi-sr-paper-plane"></i></button>
 </div>
 
@@ -57,7 +57,7 @@
     </div>
     <div class="list-area" id="replyContainer"></div>
     <div class="input-area">
-        <input type="text" id="replyInput" placeholder="Yankhani pano...">
+        <input type="text" id="replyInput" placeholder="Reply...">
         <button class="send-btn" onclick="sendReply()" style="background:#05192e;"><i class="fi fi-sr-paper-plane"></i></button>
     </div>
 </div>
@@ -131,7 +131,7 @@ function loadComments() {
         const container = document.getElementById("commentContainer");
         container.innerHTML = "";
         if(!snap.exists()) {
-             container.innerHTML = `<div style="text-align:center; padding:40px; color:#888;">Palibe comment.</div>`;
+             container.innerHTML = `<div style="text-align:center; padding:40px; color:#888;">No comment.</div>`;
              return;
         }
         snap.forEach(child => {
