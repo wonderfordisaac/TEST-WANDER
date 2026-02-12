@@ -30,19 +30,19 @@ async function sendSmartNotification(postOwnerID, type, postID = "general") {
     let actionLink = "dashboard.html"; // Default link
 
     if (type === 'like') {
-        messageSuffix = "wapanga like pa post yanu.";
+        messageSuffix = "like your comment.";
         actionLink = "notfication.html"; 
     } else if (type === 'comment') {
-        messageSuffix = "wapanga comment pa post yanu.";
+        messageSuffix = "comment your post.";
         actionLink = "notfication.html";
     } else if (type === 'share') {
         messageSuffix = "wagawira (share) post yanu.";
         actionLink = "notfication.html";
     } else if (type === 'friend_request') {
-        messageSuffix = "wakutumizirani friend request.";
+        messageSuffix = "send you friend request.";
         actionLink = "friend.html"; // Ipititse ku page ya ma request
     } else if (type === 'accept_request') {
-        messageSuffix = "wavomereza (accept) friend request yanu. Mutha kuyamba macheza!";
+        messageSuffix = "acceted your friend request!";
         actionLink = "friend.html";
     }
 
@@ -69,7 +69,7 @@ async function sendSmartNotification(postOwnerID, type, postID = "general") {
         // Ngati si inu amene munapanga notification ija poyamba
         if (existingData.from !== myID) {
             let count = (existingData.othersCount || 0) + 1;
-            let groupedMessage = `${myName} ndi anthu ena ${count} ${messageSuffix}`;
+            let groupedMessage = `${myName} with other ${count} ${messageSuffix}`;
 
             await notifRef.child(existingID).update({
                 message: groupedMessage,
