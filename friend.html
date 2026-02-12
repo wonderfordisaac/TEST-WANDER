@@ -30,19 +30,19 @@
 
 <header>
     <span onclick="location.href='dashboard.html'" style="cursor:pointer">← Back</span>
-    <b>Anzanu</b>
-    <button class="btn-toggle" onclick="toggleAnzanu()">Anzanu ▾</button>
+    <b>Friends Section</b>
+    <button class="btn-toggle" onclick="toggleAnzanu()">your friends▾</button>
 </header>
 
 <div id="anzanuSection">
     <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-        <small>Mabwenzi Anu</small>
+        <small>your friends</small>
         <span class="close-btn" onclick="toggleAnzanu()">X</span>
     </div>
-    <div id="confirmedList">Kufufuza mabwenzi...</div>
+    <div id="confirmedList">Load friends...</div>
 </div>
 
-<div class="section-title">Opempha Ubwenzi</div>
+<div class="section-title">Friend request</div>
 <div id="requestsList"></div>
 
 <div class="section-title">People You May Know</div>
@@ -120,7 +120,7 @@ function loadContent() {
             }
         });
 
-        if(!hasFriends) confDiv.innerHTML = "<small>Simunakhale ndi mabwenzi pano.</small>";
+        if(!hasFriends) confDiv.innerHTML = "<small>You don't have any friend.</small>";
         loadSuggestions(involved);
     });
 }
@@ -171,7 +171,7 @@ function send(to) {
     }).then(() => {
         // Mzere wofunika uyu:
         sendSmartNotification(to, 'friend_request', 'fr_' + myID);
-        alert("Request yatumizidwa!");
+        alert("Request Send!");
     });
 }
 
@@ -186,9 +186,9 @@ function accept(rid, sID) {
 }
 
 function unfriend(rid) {
-    if(confirm("Kodi mukufuna kuchotsa bwenzi ili mu list yanu?")) {
+    if(confirm("do You wont to remove this friend?")) {
         db.collection("friendRequests").doc(rid).delete().then(() => {
-            alert("Bwenzi lachotsedwa.");
+            alert("friend removed.");
         });
     }
 }
