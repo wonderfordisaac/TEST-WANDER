@@ -34,11 +34,10 @@
 <body>
 <div class="wrap">
   <div class="composer">
-    <h2><i class="fi fi-rr-edit"></i> Pangani post</h2>
-    <textarea id="postText" placeholder="Lembani post yanu..."></textarea>
+    <h2><i class="fi fi-rr-edit"></i>post</h2>
+    <textarea id="postText" placeholder="WRITE SOMETHING ..."></textarea>
     <div class="row">
-      <button class="icon-btn" id="addPhoto"><i class="fi fi-rr-picture"></i><span>Onjezani chithunzi</span></button>
-      <button class="icon-btn" id="addVideo"><i class="fi fi-rr-play-alt"></i><span>Onjezani video (≤10MB)</span></button>
+      <button class="icon-btn" id="addPhoto"><i class="fi fi-rr-picture"></i><span>Add images</span></button>      
       <input type="file" id="photoInput" accept="image/*" style="display:none">
       <input type="file" id="videoInput" accept="video/*" style="display:none">
     </div>
@@ -156,17 +155,17 @@
       }
     }
     sendPostBtn.disabled=true;
-    setStatus("Ikuyesa kutumiza...");setProgress(5);
+    setStatus("waitng to Post....");setProgress(5);
     const mediaLinks=[];
     try{
       let completed=0;
       for(const {file:f} of files){
         if(f.type.startsWith("image")){
-          setStatus("Ikukweza chithunzi...");
+          setStatus("progress....");
           const url=await uploadToImgbb(f);
           mediaLinks.push({type:"image",url});
         }else if(f.type.startsWith("video")){
-          setStatus("Ikukweza video...");
+          setStatus("progress.....");
           const url=await uploadToCloudinaryVideo(f);
           mediaLinks.push({type:"video",url});
         }
@@ -177,7 +176,7 @@
       const hasImage=mediaLinks.some(m=>m.type==="image");
       const hasVideo=mediaLinks.some(m=>m.type==="video");
       const postData={uid:u.uid,text:text||"",media:mediaLinks,hasImage,hasVideo,createdAt:Date.now()};
-      setStatus("Ikulemba ku database...");
+      setStatus("finish.....");
       await rtdb.ref("posts").push(postData);
       setProgress(100);
       const referrer=document.referrer||"dashboard.html";
