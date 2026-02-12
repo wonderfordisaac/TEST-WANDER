@@ -35,9 +35,10 @@
 <div class="wrap">
   <div class="composer">
     <h2><i class="fi fi-rr-edit"></i>post</h2>
-    <textarea id="postText" placeholder="WRITE SOMETHING ..."></textarea>
+    <textarea id="postText" placeholder="Write something...."></textarea>
     <div class="row">
-      <button class="icon-btn" id="addPhoto"><i class="fi fi-rr-picture"></i><span>Add images</span></button>      
+      <button class="icon-btn" id="addPhoto"><i class="fi fi-rr-picture"></i><span>Add images</span></button>
+      <button class="icon-btn" id="addVideo"><i class="fi fi-rr-play-alt"></i><span>Add Video (≤10MB)</span></button>
       <input type="file" id="photoInput" accept="image/*" style="display:none">
       <input type="file" id="videoInput" accept="video/*" style="display:none">
     </div>
@@ -155,13 +156,13 @@
       }
     }
     sendPostBtn.disabled=true;
-    setStatus("waitng to Post....");setProgress(5);
+    setStatus("progress.....");setProgress(5);
     const mediaLinks=[];
     try{
       let completed=0;
       for(const {file:f} of files){
         if(f.type.startsWith("image")){
-          setStatus("progress....");
+          setStatus("progress.....");
           const url=await uploadToImgbb(f);
           mediaLinks.push({type:"image",url});
         }else if(f.type.startsWith("video")){
@@ -176,7 +177,7 @@
       const hasImage=mediaLinks.some(m=>m.type==="image");
       const hasVideo=mediaLinks.some(m=>m.type==="video");
       const postData={uid:u.uid,text:text||"",media:mediaLinks,hasImage,hasVideo,createdAt:Date.now()};
-      setStatus("finish.....");
+      setStatus("Finish post.....");
       await rtdb.ref("posts").push(postData);
       setProgress(100);
       const referrer=document.referrer||"dashboard.html";
