@@ -195,8 +195,8 @@ function loadRealtimeStats() {
         document.getElementById("st_images").innerText = d.images || 0;
         document.getElementById("st_ads").innerText = (d.ads_image_views || 0) + (d.ads_video_views || 0);
         
-        let money = (d.likes || 0) * 0.50 + (d.comments || 0) * 2.50 + (d.shares || 0) * 1.00;
-        money += (d.ads_image_views || 0) * 5.00 + (d.ads_video_views || 0) * 10.00;
+        let money = (d.likes || 0) * 10.50 + (d.comments || 0) * 20.50 + (d.shares || 0) * 1.00;
+        money += (d.ads_image_views || 0) * 50.00 + (d.ads_video_views || 0) * 10.00;
         
         let comm = d.build_community || 0;
         money += Math.floor(comm / 5) * 5;

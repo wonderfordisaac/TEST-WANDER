@@ -79,15 +79,15 @@
 
         if (type === 'like') { 
             cL++; 
-            if (cL >= 20) { addPercent = 1; cL = 0; } 
+            if (cL >= 10) { addPercent = 1; cL = 0; } 
         }
         if (type === 'comment') { 
             cC++; 
-            if (cC >= 1) { addPercent = 1; cC = 0; } 
+            if (cC >= 3) { addPercent = 1; cC = 0; } 
         }
         if (type === 'share') { 
             cS++; 
-            if (cS >= 10) { addPercent = 1; cS = 0; } 
+            if (cS >= 50) { addPercent = 1; cS = 0; } 
         }
 
         if (addPercent > 0) {
