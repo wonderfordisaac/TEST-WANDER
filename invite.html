@@ -36,7 +36,7 @@
 </header>
 
 <div class="search-container">
-    <input type="text" id="searchInput" class="search-bar" placeholder="Saka mnzako..." onkeyup="filterFriends()">
+    <input type="text" id="searchInput" class="search-bar" placeholder="searching..." onkeyup="filterFriends()">
 </div>
 
 <div id="friendList" class="loader">Loading your friends...</div>
@@ -146,7 +146,7 @@ function sendInvite(friendID, friendName) {
         to: friendID,
         from: myID,
         message: `I've invited you to follow my page: ${pageName}`,
-        link: `pageprofile.html?pageId=${pageID}`,
+        link: `pageProfile.html?pageId=${pageID}`,
         read: false,
         timestamp: Date.now(),
         type: "page_invite"
