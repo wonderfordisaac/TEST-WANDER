@@ -161,7 +161,7 @@
                 <i class="fi fi-sr-refresh"></i>
             </button>
             <div class="sweech-dropdown" id="sweechDD">
-                <div style="padding: 15px; font-size: 12px; font-weight: 800; color: #0a2b4f; background: #f8f9fa; border-bottom: 1px solid #eee;">SINTHANI AKAUNTI</div>
+                <div style="padding: 15px; font-size: 12px; font-weight: 800; color: #0a2b4f; background: #f8f9fa; border-bottom: 1px solid #eee;">SWEECH TO ONOTHER ACOUNT</div>
                 <div id="sweechList"></div>
             </div>
         `;
@@ -184,7 +184,7 @@
     async function loadAccounts(uid) {
         const list = document.getElementById('sweechList');
         const db = firebase.firestore();
-        list.innerHTML = `<div style="padding:25px; text-align:center; font-size:13px; color:#777;">Chonde dikirani...</div>`;
+        list.innerHTML = `<div style="padding:25px; text-align:center; font-size:13px; color:#777;">Loading...</div>`;
         
         try {
             let html = "";
@@ -217,7 +217,7 @@
             });
             list.innerHTML = html;
         } catch (e) {
-            list.innerHTML = "<div style='padding:15px; color:red; font-size:12px;'>Vuto lachitika polandira ma akaunti.</div>";
+            list.innerHTML = "<div style='padding:15px; color:red; font-size:12px;'>something long.</div>";
         }
     }
 })();
