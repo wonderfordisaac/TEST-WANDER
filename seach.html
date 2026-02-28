@@ -49,14 +49,14 @@
 <header>
   <i class="fi fi-sr-arrow-left back-btn" onclick="location.href='dashboard.html'"></i>
   <form id="searchForm" class="search-input-wrapper" onsubmit="event.preventDefault(); triggerSearch();">
-    <input type="text" id="searchInput" placeholder="Saka anthu kapena ma post..." autocomplete="off" oninput="checkInput(this.value)">
+    <input type="text" id="searchInput" placeholder="Searching..." autocomplete="off" oninput="checkInput(this.value)">
   </form>
 </header>
 
 <div id="searchContent">
   <div id="preSearch">
     <div class="section" id="historyBox" style="display:none">
-      <div class="section-title"><span><i class="fi fi-sr-time-past"></i> History</span><span style="color:var(--accent); font-size:11px; cursor:pointer" onclick="clearAllHistory()">Chotsani</span></div>
+      <div class="section-title"><span><i class="fi fi-sr-time-past"></i> History</span><span style="color:var(--accent); font-size:11px; cursor:pointer" onclick="clearAllHistory()">remove</span></div>
       <div id="historyList"></div>
     </div>
     <div class="section" id="trendingBox">
@@ -194,7 +194,7 @@
           ownerName: owner.searchVal,
           photo: owner.photo,
           media: (p.media && p.media[0]) ? p.media[0].url : "",
-          link: `userpost.html?id=${key}#card_${key}`
+          link: `from-search.html?id=${key}#card_${key}`
         });
       }
     }
@@ -225,7 +225,7 @@
     );
 
     if(exact.length > 0) {
-      exactArea.innerHTML = `<div class="section-title">Zotsatira za "${q}"</div>`;
+      exactArea.innerHTML = `<div class="section-title">Results' "${q}"</div>`;
       for(let i of exact) exactArea.appendChild(await renderItem(i));
     }
     
@@ -235,7 +235,7 @@
     }
 
     if(exact.length === 0 && others.length === 0) {
-      exactArea.innerHTML = `<div class="no-results">Sizinapezeke. Yesani mawu ena.</div>`;
+      exactArea.innerHTML = `<div class="no-results">No Matches.</div>`;
     }
   }
 
