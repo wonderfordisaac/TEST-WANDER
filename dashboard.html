@@ -119,7 +119,7 @@ textarea.compose-top{flex:1;background:#0b1730;border:1px solid var(--border);bo
     <div class="top-section">
         <img id="myAvatarTop" class="avatar-top" src="https://i.ibb.co/7z5nDqK/avatar.png" onclick="location.href='profile.html'">
         <div class="postbox-top">
-            <textarea class="compose-top" placeholder="Lembani post..." readonly onclick="location.href='dashboardrightpost.html'"></textarea>
+            <textarea class="compose-top" placeholder="What you wont to post now?..." readonly onclick="location.href='dashboardrightpost.html'"></textarea>
             <button class="btn-edit-top" onclick="location.href='dashboardrightpost.html'"><i class="fi fi-rr-edit"></i></button>
         </div>
     </div>
@@ -213,7 +213,7 @@ window.addEventListener('message', function(event) {
 });
 
 function handleShare(type) {
-    const url = "https://wonderfordisaac.github.io/TEST-WANDER/userpost.html?id=" + currentSharePID;
+    const url = "https://wanderslapp.web.app/post.html?id=" + currentSharePID;
     if(type === 'whatsapp') window.open("https://api.whatsapp.com/send?text=" + encodeURIComponent("Onani: " + url));
     else if(type === 'facebook') window.open("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url));
     else if(type === 'copy') { navigator.clipboard.writeText(url); alert("Copied!"); }
@@ -264,6 +264,6 @@ auth.onAuthStateChanged(user => {
   }
 });
 </script>
- <script src="ads.js"></script>   
+<script src="ads.js"></script>
 </body>
 </html>
