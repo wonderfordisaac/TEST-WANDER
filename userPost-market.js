@@ -88,7 +88,7 @@
 
         if (!adShown) {
             postCounter++;
-            if (postCounter === 5) {
+            if (postCounter === 3) {
                 const feed = document.getElementById("postsFeed");
                 if (feed) {
                     injectMarketAds(feed);
