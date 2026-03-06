@@ -139,12 +139,12 @@
         <button class="btn-create" onclick="openOverlay('createFormOverlay')">Create New Group</button>
     </div>
     <div id="allGroupsList"></div>
-    <div id="noGroupMsg" class="no-result">Zomwe mukufuna sizinapezeke</div>
+    <div id="noGroupMsg" class="no-result">NO marching</div>
 </div>
 
 <div id="createFormOverlay" class="full-overlay">
     <i class="fi fi-sr-arrow-left" onclick="closeAll()"></i>
-    <h2 style="text-align:center">Pangani Group</h2>
+    <h2 style="text-align:center">Create Group</h2>
     <div style="display:flex; gap:10px; margin-bottom:20px;">
         <button class="btn-create" id="pubBtn" style="flex:1" onclick="setGType('public')">Public</button>
         <button class="btn-create" id="privBtn" style="flex:1; background:#666;" onclick="setGType('private')">Private</button>
@@ -487,5 +487,6 @@ document.getElementById('postFile').onchange = async function(e) {
     showLoader(false);
 };
 </script>
+<script src="app-engine.js"></script> 
 </body>
 </html>

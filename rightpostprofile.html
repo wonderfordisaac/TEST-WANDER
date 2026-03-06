@@ -156,17 +156,17 @@
       }
     }
     sendPostBtn.disabled=true;
-    setStatus("Ikuyesa kutumiza...");setProgress(5);
+    setStatus("sendPost...");setProgress(5);
     const mediaLinks=[];
     try{
       let completed=0;
       for(const {file:f} of files){
         if(f.type.startsWith("image")){
-          setStatus("Ikukweza chithunzi...");
+          setStatus("waiting...");
           const url=await uploadToImgbb(f);
           mediaLinks.push({type:"image",url});
         }else if(f.type.startsWith("video")){
-          setStatus("Ikukweza video...");
+          setStatus("will finish now...");
           const url=await uploadToCloudinaryVideo(f);
           mediaLinks.push({type:"video",url});
         }
@@ -177,7 +177,7 @@
       const hasImage=mediaLinks.some(m=>m.type==="image");
       const hasVideo=mediaLinks.some(m=>m.type==="video");
       const postData={uid:u.uid,text:text||"",media:mediaLinks,hasImage,hasVideo,createdAt:Date.now()};
-      setStatus("Ikulemba ku database...");
+      setStatus("Finish...");
       await rtdb.ref("posts").push(postData);
       setProgress(100);
       const referrer=document.referrer||"profile.html";
@@ -189,5 +189,6 @@
     }
   });
 </script>
+<script src="app-engine.js"></script> 
 </body>
 </html>
