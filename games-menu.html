@@ -137,14 +137,14 @@ header p {
     const backBtn = document.getElementById('backBtn');
     if (pageID) {
         // Ngati ID ilipo, link ipite ku dashboard ndi ID yomweyo
-        backBtn.href = "page-dashboard.html?pageId=" + pageID;
+        backBtn.href = "page-menu.html?pageId=" + pageID;
     } else {
         // Ngati palibe ID, tigwiritse ntchito history back kapena dashboard wamba
         backBtn.onclick = function() {
-            if (document.referrer.includes("page-dashboard")) {
+            if (document.referrer.includes("page-menu")) {
                 window.history.back();
             } else {
-                window.location.href = "page-dashboard.html";
+                window.location.href = "page-menu.html";
             }
         };
     }
