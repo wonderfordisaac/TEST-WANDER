@@ -30,7 +30,7 @@
 <body onmousedown="handleJump()" ontouchstart="handleJump()">
 
     <div id="ui">
-        <div>Nthawi: <span id="timer">0</span>s / 20s</div>
+        <div>Nthawi: <span id="timer">0</span>s / 60s</div>
     </div>
 
     <div class="controls">
@@ -84,9 +84,9 @@
         let isMuted = false;
         let hasWon = false;
         let timePassed = 0;
-        let gameSpeed = 9;
+        let gameSpeed = 7;
         let frameCount = 0;
-        const targetTime = 20; 
+        const targetTime = 60; 
 
         const player = { x: 100, y: 0, w: 60, h: 60, dy: 0, jumpPower: -14, gravity: 0.7, jumpsLeft: 2, onGround: false };
         let platforms = [{ x: 0, y: canvas.height - 100, w: 800, h: 100 }];
