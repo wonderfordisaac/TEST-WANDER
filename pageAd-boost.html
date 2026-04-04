@@ -29,14 +29,13 @@
         
         .footer-text { font-size: 11px; color: #888; text-align: center; margin-top: 15px; line-height: 1.4; }
 
-        .back-link { color: #0a2b4f; text-decoration: none; display: flex; align-items: center; cursor: pointer; border: none; background: none; font-size: 18px; }
+        .back-btn{position:absolute;top:10px;left:0%;padding:8px 12px;background:#0a2b4f;color:white;border:none;border-radius:6px;cursor:pointer;z-index:2}
     </style>
 </head>
-<body>
-    <a id="backBtn" class="back-link"><i class="fi fi-sr-arrow-left">Back</i></a>
+<body>   
 
 <div class="boost-card">
-    <div class="header">BOOST AD</div>
+    <div class="header"><button class="back-btn" onclick="goBack()">←</button>BOOST AD</div>
     <div class="form-body">
         
         <div class="input-group">
@@ -94,6 +93,19 @@
 </div>
 
 <script>
+    // --- CHOYAMBA: TENGA PAGE ID KUCHOKERA MU URL ---
+const urlParams = new URLSearchParams(window.location.search);
+const pageID = urlParams.get('pageId');
+
+function goBack() {
+    if (pageID) {
+        location.href = 'page-dashboard.html?pageId=' + pageID;
+    } else {
+        // Ngati palibe ID, bwererani komwe mwachokera
+        window.history.back();
+    }
+}
+
     // Firebase Setup
     const firebaseConfig = {
         apiKey: "AIzaSyDt_ayoflnFkRRnS2fXITY2EzJz0KcW5QA",
@@ -105,26 +117,7 @@
         appId: "1:245693362931:web:e15662a22dd50d2ac63d86"
     };
     firebase.initializeApp(firebaseConfig);
-    const rtdb = firebase.database();
-
-     // --- LOGIC YA BACK BUTTON NDI PAGE ID ---
-    const urlParams = new URLSearchParams(window.location.search);
-    const pageID = urlParams.get('pageId'); // Titenga ID kuchokera mu URL
-
-    const backBtn = document.getElementById('backBtn');
-    if (pageID) {
-        // Ngati ID ilipo, link ipite ku dashboard ndi ID yomweyo
-        backBtn.href = "page-dashboard.html?pageId=" + pageID;
-    } else {
-        // Ngati palibe ID, tigwiritse ntchito history back kapena dashboard wamba
-        backBtn.onclick = function() {
-            if (document.referrer.includes("page-dashboard")) {
-                window.history.back();
-            } else {
-                window.location.href = "page-menu.html";
-            }
-        };
-    }
+    const rtdb = firebase.database();    
 
     // Toggle between Phone and Link inputs
     function toggleInputs() {
