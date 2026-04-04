@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WanderSlapp - Pages Hub</title>
+    <title>WanderSlapp - Pages</title>
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'>
     <style>
         body { font-family: system-ui, sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
@@ -45,13 +45,13 @@
         <button onclick="showCreateForm()" style="background:#fff; color:#0a2b4f; border:none; padding:5px 10px; border-radius:5px; font-size:12px; font-weight:bold;">+ Create</button>
     </div>
 
-    <div class="section-title">MA PAGE ANU</div>
+    <div class="section-title">YOUR PAGE'S</div>
     <div class="my-pages-scroll" id="myPagesContainer">
         </div>
 
     <hr style="border: 0; border-top: 5px solid #e4e6eb; margin: 10px 0;">
 
-    <div class="section-title">PANGANI FOLLOW MA PAGE ENA</div>
+    <div class="section-title">FOLLOW PAGE'S</div>
     <div class="discover-list" id="discoverContainer">
         </div>
 </div>
@@ -59,9 +59,9 @@
 <div id="createPageForm">
     <div style="display:flex; align-items:center; margin-bottom:20px;">
         <button onclick="hideCreateForm()" style="border:none; background:none; font-size:20px; margin-right:15px;"><i class="fi fi-sr-arrow-left"></i></button>
-        <h3 style="margin:0;">Pangani Page Yanu</h3>
+        <h3 style="margin:0;">Create Page</h3>
     </div>
-    <div class="form-group"><input type="text" id="pgName" placeholder="Dzina la Page"></div>
+    <div class="form-group"><input type="text" id="pgName" placeholder="Page Name"></div>
     <div class="form-group">
         <select id="pgCategory">
             <option value="Business">Business</option>
@@ -77,8 +77,8 @@
             <option value="website">Website</option>
         </select>
     </div>
-    <div class="form-group"><input type="text" id="pgLinkValue" placeholder="Nambala ya WhatsApp"></div>
-    <button class="btn-save" onclick="savePage()">Pangani Tsopano</button>
+    <div class="form-group"><input type="text" id="pgLinkValue" placeholder="Your WhatsApp Nomber"></div>
+    <button class="btn-save" onclick="savePage()">CREATE NOW</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
@@ -127,7 +127,7 @@ function goBack() {
     function toggleLinkInput() {
         const type = document.getElementById('pgLinkType').value;
         const input = document.getElementById('pgLinkValue');
-        input.placeholder = type === 'whatsapp' ? "Nambala ya WhatsApp" : (type === 'email' ? "Email Address" : "Website URL");
+        input.placeholder = type === 'whatsapp' ? "Your WhatsApp Nomber" : (type === 'email' ? "Email Address" : "Website URL Link");
     }
 
     async function savePage() {
@@ -135,7 +135,7 @@ function goBack() {
         const cat = document.getElementById('pgCategory').value;
         const lType = document.getElementById('pgLinkType').value;
         const lVal = document.getElementById('pgLinkValue').value;
-        if(!name || !lVal) return alert("Lembani zonse!");
+        if(!name || !lVal) return alert("fill all!");
 
         await db.collection("pages").add({
             owner: myID, name, category: cat, linkType: lType, linkValue: lVal,

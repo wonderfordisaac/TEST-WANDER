@@ -183,26 +183,7 @@
 
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const rtdb = firebase.database();
-
-    // --- LOGIC YA BACK BUTTON NDI PAGE ID ---
-    const urlParams = new URLSearchParams(window.location.search);
-    const pageID = urlParams.get('pageId'); // Titenga ID kuchokera mu URL
-
-    const backBtn = document.getElementById('backBtn');
-    if (pageID) {
-        // Ngati ID ilipo, link ipite ku dashboard ndi ID yomweyo
-        backBtn.href = "page-dashboard.html?pageId=" + pageID;
-    } else {
-        // Ngati palibe ID, tigwiritse ntchito history back kapena dashboard wamba
-        backBtn.onclick = function() {
-            if (document.referrer.includes("page-dashboard")) {
-                window.history.back();
-            } else {
-                window.location.href = "page-dashboard.html";
-            }
-        };
-    }
+    const rtdb = firebase.database();    
 
     function updateMenuBadges(uid) {
         rtdb.ref(`notifications/${uid}/groups`).on('value', snapshot => {

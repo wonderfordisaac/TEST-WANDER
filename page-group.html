@@ -129,7 +129,7 @@
 <div class="search-container">
     <div class="search-box">
         <i class="fi fi-sr-search"></i>
-        <input type="text" id="groupSearchInput" placeholder="Fufuzani group..." oninput="filterGroups()">
+        <input type="text" id="groupSearchInput" placeholder="SEARCH Group..." oninput="filterGroups()">
     </div>
 </div>
 
@@ -139,12 +139,12 @@
         <button class="btn-create" onclick="openOverlay('createFormOverlay')">Create New Group</button>
     </div>
     <div id="allGroupsList"></div>
-    <div id="noGroupMsg" class="no-result">Zomwe mukufuna sizinapezeke</div>
+    <div id="noGroupMsg" class="no-result">No Group with this Name here</div>
 </div>
 
 <div id="createFormOverlay" class="full-overlay">
     <i class="fi fi-sr-arrow-left" onclick="closeAll()"></i>
-    <h2 style="text-align:center">Pangani Group</h2>
+    <h2 style="text-align:center">Create Group</h2>
     <div style="display:flex; gap:10px; margin-bottom:20px;">
         <button class="btn-create" id="pubBtn" style="flex:1" onclick="setGType('public')">Public</button>
         <button class="btn-create" id="privBtn" style="flex:1; background:#666;" onclick="setGType('private')">Private</button>
@@ -333,7 +333,7 @@ function joinLogic(gid, type, adminID, isMember, name) {
     if(isMember) return enterGroup(gid, name, adminID);
     if(type === 'private') {
         db.collection("users").doc(adminID).get().then(doc => { 
-            alert("VUTO: Group ili ndi la Private! Lankhulani ndi Admin kuti akulowetseni: " + (doc.exists ? doc.data().fullName : "Admin")); 
+            alert("YOU CAN'T JOIN: This Group is private! talk with Admin to add you: " + (doc.exists ? doc.data().fullName : "Admin")); 
         });
         return;
     }
@@ -385,7 +385,7 @@ function checkPermissions() {
                 return;
             }
         }
-        postInput.placeholder = "Lembani...";
+        postInput.placeholder = "post...";
         postInput.disabled = false; actionBtn.disabled = false;
         attachBtn.style.opacity = "1";
         attachBtn.onclick = () => document.getElementById('postFile').click();
@@ -443,7 +443,7 @@ function updateSendBtn() {
 async function handleAction() {
     const postInput = document.getElementById('postText');
     const txt = postInput.value.trim();
-    if(!activeGID) return alert("Sankhani group kaye!");
+    if(!activeGID) return alert("Select group!");
     if(txt !== "") { 
         let postObj = { 
             text: txt, type: 'text', uid: myID, 
@@ -453,7 +453,7 @@ async function handleAction() {
         if(replyData) postObj.replyTo = { name: replyData.name, text: replyData.text };
         rtdb.ref(`groupPosts/${activeGID}`).push(postObj).then(() => {
             postInput.value = ""; cancelReply(); updateSendBtn();
-        }).catch(err => alert("Vuto: " + err.message));
+        }).catch(err => alert("Error: " + err.message));
     } else { startVoiceRecording(); }
 }
 
