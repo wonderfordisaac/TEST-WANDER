@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WanderSlapp Monitization</title>
+    <title>WanderSlapp Monetization</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
@@ -45,13 +45,13 @@
 <div id="mainUI">
     <header>
         <a href="menu.html" class="back-btn"><i class="fi fi-sr-arrow-left"></i></a>
-        <h2>MONITIZATION</h2>
+        <h2>MONETIZATION</h2>
         <i class="fi fi-sr-settings" style="cursor:pointer" onclick="showPage('settingsPage')"></i>
     </header>
 
     <div class="container">
         <div class="balance-box">
-            <small>Total Monitization Money</small>
+            <small>Total Monetization Money</small>
             <h1 id="totalMoney">MK0.00</h1>
             <button class="btn-withdraw" onclick="showPage('withdrawPage')">WITHDRAW</button>
         </div>
@@ -82,7 +82,7 @@
 </div>
 
 <div id="regPage" class="overlay-page" style="display: block;">
-    <header><a href="menu.html" class="back-btn"><i class="fi fi-sr-arrow-left"></i></a><h2>Register Monitization</h2></header>
+    <header><a href="menu.html" class="back-btn"><i class="fi fi-sr-arrow-left"></i></a><h2>Register Monetization</h2></header>
     <div style="padding:20px;">
         <div class="form-group"><label>Full Name</label><input type="text" id="regName" readonly></div>
         <div class="form-group"><label>Age (d/m/y)</label><input type="text" id="regAge" placeholder="20/05/1998"></div>
@@ -117,7 +117,7 @@
 </div>
 
 <div id="settingsPage" class="overlay-page">
-    <header><i class="fi fi-sr-arrow-left" onclick="hidePage('settingsPage')"></i> <h2>Monitization Settings</h2></header>
+    <header><i class="fi fi-sr-arrow-left" onclick="hidePage('settingsPage')"></i> <h2>Monetization Settings</h2></header>
     <div style="padding:20px;">
         <div class="form-group"><label>Age</label><input type="text" id="setAge"></div>
         <div class="form-group"><label>Country</label>
@@ -266,7 +266,7 @@ function doWithdraw() {
     document.getElementById("popContent").innerHTML = `
         <h2 style="color:var(--accent)">MK${amt} your withdraw!</h2>
         <p>money send to: <b>${userMonData.method} (${userMonData.payNumber})</b></p>
-        <p style="font-size:11px;">You have to wait 24hrs for the money to reach your account.<br>If it does not arrive after this time, contact our Supoting Teem</p>
+        <p style="font-size:11px;">You have to wait 24hrs for the money to reach your account.<br>If it does not arrive after this time, contact our Suporting Teem</p>
     `;
     document.getElementById("popup").style.display = "block";
 }
