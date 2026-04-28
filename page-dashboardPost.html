@@ -42,7 +42,7 @@
         .action-btn i { font-size: 22px; } 
         .liked i { color: #0a2b4f; }
 
-        /* SKELETON BOX STYLES (YOWALA KWAMBIRI) */
+        /* SKELETON BOX STYLES */
         .skeleton-wrapper { padding: 15px; border-bottom: 8px solid #f0f2f5; background: #fff; }
         .shimmer { 
             background: #e6e6e6; 
@@ -87,7 +87,7 @@
     <button id="loadMoreBtn" onclick="loadMore()">See More Posts</button>
 </div>
 
-<script src="monitaize.js"></script>
+<script src="page-monetize.js"></script>
 <script>
 const firebaseConfig = {
     apiKey: "AIzaSyDt_ayoflnFkRRnS2fXITY2EzJz0KcW5QA",
@@ -207,9 +207,15 @@ function renderPosts(posts) {
             ${p.text ? `<div class="post-content clamp-text" id="txt_${p.id}">${linkify(p.text)}</div><span class="see-btn" id="btn_${p.id}" onclick="toggleText('txt_${p.id}','btn_${p.id}')">See more</span>` : ''}
             ${mediaHtml}
             <div class="post-actions">
-                <div class="action-btn" id="l_${p.id}" onclick="toggleLike('${p.id}')"><i class="fi fi-sr-thumbs-up"></i> <span id="lc_${p.id}">0</span></div>
-                <div class="action-btn" onclick="openComments('${p.id}','${pageData.owner}')"><i class="fi fi-sr-comment-alt"></i> <span id="cc_${p.id}">0</span></div>
-                <div class="action-btn" onclick="openShare('${p.id}')"><i class="fi fi-rr-share"></i></div>
+                <div class="action-btn" id="l_${p.id}" onclick="toggleLike('${p.id}', '${p.pageId}')">
+                    <i class="fi fi-sr-thumbs-up"></i> <span id="lc_${p.id}">0</span>
+                </div>
+                <div class="action-btn" onclick="openComments('${p.id}','${p.pageId}')">
+                    <i class="fi fi-sr-comment-alt"></i> <span id="cc_${p.id}">0</span>
+                </div>
+                <div class="action-btn" onclick="openShare('${p.id}', '${p.pageId}')">
+                    <i class="fi fi-rr-share"></i>
+                </div>
             </div>`;
         
         feed.appendChild(card);
@@ -257,13 +263,23 @@ function linkify(text) {
     return t;
 }
 
-function toggleLike(pid) {
+// TOGGLELIKE KONZEDWA: Ikutumiza ku Monetization kaye
+function toggleLike(pid, pageID) {
+    if (typeof growPage === 'function') growPage('like', pageID);
     const ref = rtdb.ref(`postStats/${pid}/likes/${myID}`);
     ref.once('value', s => { if(s.exists()) ref.remove(); else ref.set(true); });
 }
 
-function openComments(pid, ownerID) { window.parent.postMessage({ type: "OPEN_COMMENTS", pid: pid, ownerID: ownerID }, "*"); }
-function openShare(pid) { window.parent.postMessage({ type: "OPEN_SHARE", pid: pid }, "*"); }
+function openComments(pid, ownerID) { 
+    // ownerID pano ndi Page ID
+    window.parent.postMessage({ type: "OPEN_COMMENTS", pid: pid, ownerID: ownerID }, "*"); 
+}
+
+function openShare(pid, pageID) { 
+    if (typeof growPage === 'function') growPage('share', pageID);
+    window.parent.postMessage({ type: "OPEN_SHARE", pid: pid }, "*"); 
+}
+
 function openGallery(media, idx) {
     let content = media[idx].type === "video" ? `<video src="${media[idx].url}" controls autoplay style="width:100%;"></video>` : `<img src="${media[idx].url}" style="width:100%;">`;
     window.parent.postMessage({ type: "FULL_SCREEN", content: content }, "*");

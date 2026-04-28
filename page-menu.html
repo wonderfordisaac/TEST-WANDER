@@ -9,7 +9,6 @@
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
     <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-brands/css/uicons-brands.css">
 
-    
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database-compat.js"></script>
@@ -89,7 +88,7 @@
         }
 
         .menu-item i { font-size: 32px; margin-bottom: 12px; }
-        .menu-item span { font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .menu-item span { font-size: 11px; font-weight: 700; text-transform: uppercase; text-align: center; }
 
         .page i { color: #007bff; }
         .group i { color: #6f42c1; }
@@ -113,49 +112,49 @@
 </header>
 
 <div class="menu-grid">
-    <a href="pageAd-boost.html" class="menu-item market">
+    <a data-url="pageAd-boost.html" class="menu-item market">
         <i class="fi fi-sr-shop"></i>
         <span>Self ads boost Market</span>
     </a>
 
-    <a href="page-page.html" class="menu-item page">
+    <a data-url="page-page.html" class="menu-item page">
         <div id="pageBadge" class="badge">0</div>
         <i class="fi fi-sr-document"></i>
         <span>Page</span>
     </a>
 
-    <a href="page-group.html" class="menu-item group">
+    <a data-url="page-group.html" class="menu-item group">
         <div id="groupBadge" class="badge">0</div>
         <i class="fi fi-sr-users-alt"></i>
         <span>Group</span>
     </a>
 
-    <a href="page-settings.html" class="menu-item settings">
+    <a data-url="page-settings.html" class="menu-item settings">
         <i class="fi fi-sr-settings"></i>
         <span>Settings</span>
     </a>
 
-    <a href="page-market.html" class="menu-item market">
+    <a data-url="page-market.html" class="menu-item market">
         <i class="fi fi-sr-shop"></i>
         <span>Free Market</span>
     </a>
 
-    <a href="games-menu.html" class="menu-item games">
+    <a data-url="games-menu.html" class="menu-item games">
         <i class="fi fi-sr-gamepad"></i>
         <span>Games</span>
     </a>
 
-    <a href="page-monitaizetion.html" class="menu-item mon">
+    <a data-url="pageMonetizetion.html" class="menu-item mon">
         <i class="fi fi-sr-stats"></i>
         <span>Monitazation</span>
     </a>
     
-    <a href="page-radio.html" class="menu-item mon">
+    <a data-url="page-radio.html" class="menu-item mon">
         <i class="fi fi-rr-radio"></i>
         <span>Radio</span>
     </a>
 
-    <a href="photoedt.html" class="menu-item mon">
+    <a data-url="photoedt.html" class="menu-item mon">
         <i class="fi fi-rr-aperture"></i>
         <span>Photo Editor</span>
     </a>
@@ -185,6 +184,25 @@
     const auth = firebase.auth();
     const rtdb = firebase.database();    
 
+    // --- CHIKONDIERO CHA PAGE ID ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageID = urlParams.get('pageId');
+
+    function setupMenuLinks() {
+        if (!pageID) return; // Ngati palibe pageID, siyani
+
+        // Sinthani Back Button
+        document.getElementById('backBtn').href = `page-dashboard.html?pageId=${pageID}`;
+
+        // Sinthani ma link onse a mu menu
+        const menuItems = document.querySelectorAll('.menu-item[data-url]');
+        menuItems.forEach(item => {
+            const baseUrl = item.getAttribute('data-url');
+            // Ikani pageId kumapeto kwa file iliyonse
+            item.href = `${baseUrl}?pageId=${pageID}`;
+        });
+    }
+
     function updateMenuBadges(uid) {
         rtdb.ref(`notifications/${uid}/groups`).on('value', snapshot => {
             const count = snapshot.val() || 0;
@@ -212,6 +230,7 @@
     auth.onAuthStateChanged(user => {
         if (user) {
             updateMenuBadges(user.uid);
+            setupMenuLinks(); // Itanani pano kuti ma link akonzedwe
         }
     });
 
@@ -221,6 +240,5 @@
         }
     }
 </script>
-<script src="app-engine.js"></script> 
 </body>
 </html>
