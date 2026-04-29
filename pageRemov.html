@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ny">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Settings - Delete</title>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database-compat.js"></script>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+
+    <style>
+        :root { --main: #0a2b4f; --bg: #f0f2f5; --white: #ffffff; --red: #dc3545; }
+        body { font-family: system-ui; margin: 0; background: var(--bg); color: #1c1e21; }
+        
+        header { 
+            background: var(--main); 
+            color: white; 
+            padding: 15px; 
+            display: flex; 
+            align-items: center; 
+            font-weight: bold; 
+        }
+        .back-link { color: white; text-decoration: none; font-size: 20px; margin-right: 15px; display: flex; align-items: center; }
+        
+        .container { padding: 20px; max-width: 500px; margin: auto; }
+        
+        .card { 
+            background: var(--white); 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+            text-align: center;
+        }
+
+        .page-info-box {
+            background: #fff5f5;
+            border: 1px solid #ffcccc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none; /* Only show if page exists */
+        }
+
+        .btn-delete {
+            background: var(--red);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 15px;
+        }
+        .btn-delete:disabled { background: #ccc; cursor: not-allowed; }
+
+        .loader {
+            display: none;
+            width: 25px;
+            height: 25px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 15px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .msg { font-size: 13px; margin-top: 10px; color: var(--red); font-weight: 500; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-top: 10px;
+            outline: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="page-settings.html" class="back-link"><i class="fi fi-sr-arrow-left"></i></a>
+    <div>Page Settings</div>
+</header>
+
+<div class="container">
+    <div class="card">
+        <i class="fi fi-sr-trash" style="font-size: 50px; color: var(--red);"></i>
+        <h2 style="margin: 10px 0;">Delete Your Page</h2>
+        <p style="color: #666; font-size: 14px; line-height: 1.5;">
+            Mukachotsa Page yanu, zinthu zonse monga <b>ma post, owatsatira (followers), ndi ma stats</b> zidzafufutidwa kwamuyaya.
+        </p>
+
+        <div id="pageDataBox" class="page-info-box">
+            <span id="pageNameDisplay" style="font-weight: bold; color: var(--main);"></span>
+        </div>
+
+        <div id="loadingPage" style="padding: 20px; font-size: 14px; color: #888;">Chonde dikirani...</div>
+
+        <div id="deleteForm" style="display: none;">
+            <p style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">Lembani dzina la page yanu kuti mutsimikize:</p>
+            <input type="text" id="confirmPageName" placeholder="Lembani dzina la Page">
+            
+            <div id="loaderDelete" class="loader"></div>
+            <button class="btn-delete" id="deleteBtn" onclick="handleDeletePage()">DELETE PAGE PERMANENTLY</button>
+            <p id="msgError" class="msg"></p>
+        </div>
+
+        <div id="noPageMsg" style="display: none; padding: 20px; color: #666;">
+            Sinapezeke Page iliyonse yolumikizidwa ndi account yanu.
+        </div>
+    </div>
+</div>
+
+<script>
+    // Firebase Config
+    const firebaseConfig = {
+        apiKey: "AIzaSyDt_ayoflnFkRRnS2fXITY2EzJz0KcW5QA",
+        authDomain: "makert-bfb76.firebaseapp.com",
+        databaseURL: "https://makert-bfb76-default-rtdb.firebaseio.com",
+        projectId: "makert-bfb76",
+        storageBucket: "makert-bfb76.firebasestorage.app",
+        messagingSenderId: "245693362931",
+        appId: "1:245693362931:web:e15662a22dd50d2ac63d86"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const rtdb = firebase.database();
+
+    let myPageID = null;
+    let myPageName = "";
+
+    // Yang'anani ngati user ali ndi Page
+    auth.onAuthStateChanged(async user => {
+        if(user) {
+            const pageSnap = await db.collection("pages").where("owner", "==", user.uid).limit(1).get();
+            document.getElementById('loadingPage').style.display = 'none';
+            
+            if(!pageSnap.empty) {
+                const pageDoc = pageSnap.docs[0];
+                myPageID = pageDoc.id;
+                myPageName = pageDoc.data().name;
+
+                document.getElementById('pageNameDisplay').innerText = "Page: " + myPageName;
+                document.getElementById('pageDataBox').style.display = 'block';
+                document.getElementById('deleteForm').style.display = 'block';
+            } else {
+                document.getElementById('noPageMsg').style.display = 'block';
+            }
+        } else {
+            window.location.href = "login.html";
+        }
+    });
+
+    async function handleDeletePage() {
+        const inputName = document.getElementById('confirmPageName').value.trim();
+        const msg = document.getElementById('msgError');
+        
+        // Kutsimikiza dzina kaye
+        if(inputName.toLowerCase() !== myPageName.toLowerCase()) {
+            msg.innerText = "Dzina la page silikufanana!";
+            return;
+        }
+
+        if(!confirm("Kodi mukutsimikiza kufuna kufuta Page iyi kwamuyaya? Izi sizingabwezedwe.")) return;
+
+        const btn = document.getElementById('deleteBtn');
+        const loader = document.getElementById('loaderDelete');
+
+        btn.disabled = true;
+        loader.style.display = 'block';
+        msg.innerText = "";
+
+        try {
+            // 1. Chotsani Page mu Firestore
+            await db.collection("pages").doc(myPageID).delete();
+
+            // 2. Chotsani ma Post a Page-yo mu Realtime Database (rtdb)
+            // Timayang'ana ma posts onse omwe ali ndi pageId yofutidwayo
+            const postsRef = rtdb.ref("pagePosts");
+            const snapshot = await postsRef.orderByChild("pageId").equalTo(myPageID).once('value');
+            
+            if(snapshot.exists()) {
+                const updates = {};
+                snapshot.forEach(child => {
+                    updates[child.key] = null; // Mark for deletion
+                    // Chotsani ndi ma stats a post iliyonse
+                    rtdb.ref(`postStats/${child.key}`).remove();
+                });
+                await postsRef.update(updates);
+            }
+
+            // 3. Chotsani ma Monit Stats (Ndalama/Zowerengera)
+            await rtdb.ref(`monit_stats/${myPageID}`).remove();
+
+            alert("Page yanu yafutidwa bwinobwino.");
+            window.parent.location.href = "index.html"; // Pitani ku Home
+
+        } catch(e) {
+            console.error(e);
+            msg.innerText = "Zalephera: " + e.message;
+            btn.disabled = false;
+        }
+        loader.style.display = 'none';
+    }
+</script>
+</body>
+</html>
