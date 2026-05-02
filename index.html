@@ -104,6 +104,19 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .red-msg { color: red; font-size: 11px; text-align: center; margin-top: 10px; }
+
+      /* copyright */
+    #copyright-message {
+    font-size: 0.80em;            /* 🔧 Uchepetsa size ya mawu */
+    font-weight: 400;             /* 🔧 Mawu asakhale a bold (400 = normal) */
+    font-style: italic;           /* 🔧 Mawu apange style ya italic (kapenanso onjezere ngati mukufuna) */
+    color: #666;                  /* 🔧 Mtundu wa mawu — osakhala wakuda kwambiri */
+    text-align: center;
+    margin-top: 60px;
+    padding: 10px 14px;
+    background-color: #f3f3f3;   
+    font-family: "Segoe UI", sans-serif;  /* 🔧 Font yokongola ya UI */
+   }
   </style>
   <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'>
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
@@ -144,6 +157,7 @@
         <option value="Malawi">Malawi</option>
         <option value="Zambia">Zambia</option>
         <option value="Tanzania">Tanzania</option>
+        <option value="Others">South Africa</option>
         <option value="Others">Others</option>
       </select>
     </div>
@@ -153,12 +167,21 @@
     </div>
     <div class="checkbox-row">
       <input type="checkbox" id="terms">
-      <label for="terms">I agree to terms and conditions</label>
+      <label for="terms">I agree to terms and conditions<a href="fisrtDocument.html" target="_blank" class="social-link">    
+      <span>read it before sign up</span></a></label>
     </div>
     <button type="submit">Register</button>
     <div class="switch" id="toLogin">Already have account? Login</div>
   </form>
 </div>
+
+<div id="copyright-message" class="copyright-box">
+ copyright &copy; 2025 WANDERSLAPP. Secure and reliable in all online operations.<br>       
+       WANDERSLAPP. Trusted and protected across all internet services.   <strong>see our</strong><a href="fisrtDocument.html" target="_blank" class="social-link">    
+    <span>privacy.</span></a>&<a href="fisrtDocument.html" target="_blank" class="social-link">    
+    <span>policy.</span></a>      
+   </div>
+</div>  
 
 <script>
   const firebaseConfig = {
@@ -273,7 +296,7 @@
     const email = document.getElementById("regEmail").value.trim();
     const pass = document.getElementById("regPassword").value.trim();
     if (!fName || !lName || !email || !pass || !document.getElementById("terms").checked) {
-      alert("Lembani zonse."); return;
+      alert("please make sure you have written everything."); return;
     }
     try {
       const cred = await auth.createUserWithEmailAndPassword(email, pass);
@@ -288,6 +311,6 @@
 
   showSaved();
 </script>
-<script src="app-engine.js"></script> 
+<script src="#"></script> 
 </body>
 </html>

@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Page Settings - Delete</title>
+    
+    <!-- 1. LUBANGA LA SWEETALERT2 (Izi n'zofunika kuti alert zikhale za professional) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
@@ -22,7 +26,7 @@
             align-items: center; 
             font-weight: bold; 
         }
-        .back-link { color: white; text-decoration: none; font-size: 20px; margin-right: 15px; display: flex; align-items: center; }
+        .back-link { color: white; text-decoration: none; font-size: 20px; margin-right: 15px; display: flex; align-items: center; cursor: pointer; }
         
         .container { padding: 20px; max-width: 500px; margin: auto; }
         
@@ -40,7 +44,7 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
-            display: none; /* Only show if page exists */
+            display: none; 
         }
 
         .btn-delete {
@@ -80,13 +84,16 @@
             outline: none;
             text-align: center;
         }
+
+        /* Sinthani ma button a SweetAlert kuti agwirizane ndi App yanu */
+        .swal2-styled.swal2-confirm { background-color: var(--red) !important; }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="page-settings.html" class="back-link"><i class="fi fi-sr-arrow-left"></i></a>
-    <div>Page Settings</div>
+    <a id="backBtn" class="back-link"><i class="fi fi-sr-arrow-left"></i></a>
+    <div>Delete Page</div>
 </header>
 
 <div class="container">
@@ -94,18 +101,18 @@
         <i class="fi fi-sr-trash" style="font-size: 50px; color: var(--red);"></i>
         <h2 style="margin: 10px 0;">Delete Your Page</h2>
         <p style="color: #666; font-size: 14px; line-height: 1.5;">
-            Mukachotsa Page yanu, zinthu zonse monga <b>ma post, owatsatira (followers), ndi ma stats</b> zidzafufutidwa kwamuyaya.
+            When you delete your Page, all content such as <b>posts, followers, and stats</b> will be permanently deleted.
         </p>
 
         <div id="pageDataBox" class="page-info-box">
             <span id="pageNameDisplay" style="font-weight: bold; color: var(--main);"></span>
         </div>
 
-        <div id="loadingPage" style="padding: 20px; font-size: 14px; color: #888;">Chonde dikirani...</div>
+        <div id="loadingPage" style="padding: 20px; font-size: 14px; color: #888;">Loading...</div>
 
         <div id="deleteForm" style="display: none;">
-            <p style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">Lembani dzina la page yanu kuti mutsimikize:</p>
-            <input type="text" id="confirmPageName" placeholder="Lembani dzina la Page">
+            <p style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">Enter your page name to confirm:</p>
+            <input type="text" id="confirmPageName" placeholder="Enter your page name">
             
             <div id="loaderDelete" class="loader"></div>
             <button class="btn-delete" id="deleteBtn" onclick="handleDeletePage()">DELETE PAGE PERMANENTLY</button>
@@ -113,13 +120,12 @@
         </div>
 
         <div id="noPageMsg" style="display: none; padding: 20px; color: #666;">
-            Sinapezeke Page iliyonse yolumikizidwa ndi account yanu.
+            We cant find your page Name in our data.
         </div>
     </div>
 </div>
 
 <script>
-    // Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyDt_ayoflnFkRRnS2fXITY2EzJz0KcW5QA",
         authDomain: "makert-bfb76.firebaseapp.com",
@@ -134,24 +140,34 @@
     const db = firebase.firestore();
     const rtdb = firebase.database();
 
-    let myPageID = null;
+    const urlParams = new URLSearchParams(window.location.search);
+    const pageIDfromURL = urlParams.get('pageId'); 
+
     let myPageName = "";
 
-    // Yang'anani ngati user ali ndi Page
     auth.onAuthStateChanged(async user => {
         if(user) {
-            const pageSnap = await db.collection("pages").where("owner", "==", user.uid).limit(1).get();
-            document.getElementById('loadingPage').style.display = 'none';
-            
-            if(!pageSnap.empty) {
-                const pageDoc = pageSnap.docs[0];
-                myPageID = pageDoc.id;
-                myPageName = pageDoc.data().name;
+            if(pageIDfromURL) {
+                document.getElementById('backBtn').href = `pageSettings.html?pageId=${pageIDfromURL}`;
+                
+                try {
+                    const doc = await db.collection("pages").doc(pageIDfromURL).get();
+                    document.getElementById('loadingPage').style.display = 'none';
 
-                document.getElementById('pageNameDisplay').innerText = "Page: " + myPageName;
-                document.getElementById('pageDataBox').style.display = 'block';
-                document.getElementById('deleteForm').style.display = 'block';
+                    if (doc.exists && doc.data().owner === user.uid) {
+                        myPageName = doc.data().name;
+                        document.getElementById('pageNameDisplay').innerText = "Page: " + myPageName;
+                        document.getElementById('pageDataBox').style.display = 'block';
+                        document.getElementById('deleteForm').style.display = 'block';
+                    } else {
+                        document.getElementById('noPageMsg').style.display = 'block';
+                        document.getElementById('noPageMsg').innerText = "Simuli eni ake a Page iyi.";
+                    }
+                } catch (error) {
+                    document.getElementById('noPageMsg').style.display = 'block';
+                }
             } else {
+                document.getElementById('loadingPage').style.display = 'none';
                 document.getElementById('noPageMsg').style.display = 'block';
             }
         } else {
@@ -163,52 +179,66 @@
         const inputName = document.getElementById('confirmPageName').value.trim();
         const msg = document.getElementById('msgError');
         
-        // Kutsimikiza dzina kaye
         if(inputName.toLowerCase() !== myPageName.toLowerCase()) {
-            msg.innerText = "Dzina la page silikufanana!";
+            // 2. ALERT YA MBALI IMODZI (Professional Error)
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Page name does not match!',
+                confirmButtonColor: '#0a2b4f'
+            });
             return;
         }
 
-        if(!confirm("Kodi mukutsimikiza kufuna kufuta Page iyi kwamuyaya? Izi sizingabwezedwe.")) return;
+        // 3. CONFIRMATION ALERT (Opanda ma link a website)
+        Swal.fire({
+            title: 'Do you confirm?',
+            text: "Do you want to delete this Page permanently?you never undo!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: 'yes, delete!',
+            cancelButtonText: 'no, cancel'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const btn = document.getElementById('deleteBtn');
+                const loader = document.getElementById('loaderDelete');
+                btn.disabled = true;
+                loader.style.display = 'block';
 
-        const btn = document.getElementById('deleteBtn');
-        const loader = document.getElementById('loaderDelete');
+                try {
+                    await db.collection("pages").doc(pageIDfromURL).delete();
 
-        btn.disabled = true;
-        loader.style.display = 'block';
-        msg.innerText = "";
+                    const snapshot = await rtdb.ref("pagePosts").orderByChild("pageId").equalTo(pageIDfromURL).once('value');
+                    if(snapshot.exists()) {
+                        const updates = {};
+                        snapshot.forEach(child => {
+                            updates[child.key] = null;
+                            rtdb.ref(`postStats/${child.key}`).remove();
+                        });
+                        await rtdb.ref("pagePosts").update(updates);
+                    }
 
-        try {
-            // 1. Chotsani Page mu Firestore
-            await db.collection("pages").doc(myPageID).delete();
+                    await rtdb.ref(`monit_stats/${pageIDfromURL}`).remove();
 
-            // 2. Chotsani ma Post a Page-yo mu Realtime Database (rtdb)
-            // Timayang'ana ma posts onse omwe ali ndi pageId yofutidwayo
-            const postsRef = rtdb.ref("pagePosts");
-            const snapshot = await postsRef.orderByChild("pageId").equalTo(myPageID).once('value');
-            
-            if(snapshot.exists()) {
-                const updates = {};
-                snapshot.forEach(child => {
-                    updates[child.key] = null; // Mark for deletion
-                    // Chotsani ndi ma stats a post iliyonse
-                    rtdb.ref(`postStats/${child.key}`).remove();
-                });
-                await postsRef.update(updates);
+                    // 4. SUCCESS ALERT (Opanda ma link)
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'successful!',
+                        text: 'Your page deleted.',
+                        confirmButtonColor: '#0a2b4f'
+                    }).then(() => {
+                        window.location.href = "index.html";
+                    });
+
+                } catch(e) {
+                    Swal.fire('Error', e.message, 'error');
+                    btn.disabled = false;
+                }
+                loader.style.display = 'none';
             }
-
-            // 3. Chotsani ma Monit Stats (Ndalama/Zowerengera)
-            await rtdb.ref(`monit_stats/${myPageID}`).remove();
-
-            alert("Page yanu yafutidwa bwinobwino.");
-            window.parent.location.href = "index.html"; // Pitani ku Home
-
-        } catch(e) {
-            console.error(e);
-            msg.innerText = "Zalephera: " + e.message;
-            btn.disabled = false;
-        }
-        loader.style.display = 'none';
+        });
     }
 </script>
 </body>
